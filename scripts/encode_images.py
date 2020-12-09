@@ -29,13 +29,13 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
 def main():
-    print('@@@@@@@@@@@@@@@@@@@@@@   version 15   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+    print('@@@@@@@@@@@@@@@@@@@@@@   version 10   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
     parser = argparse.ArgumentParser(description='Find latent representation of reference images using perceptual losses', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('src_dir', help='Directory with images for encoding')
     parser.add_argument('generated_images_dir', help='Directory for storing generated images')
     parser.add_argument('dlatent_dir', help='Directory for storing dlatent representations')
-    parser.add_argument('--data_dir', default='images/data', help='Directory for storing optional models')
-    parser.add_argument('--mask_dir', default='images/masks', help='Directory for storing optional masks')
+    parser.add_argument('--data_dir', default='data', help='Directory for storing optional models')
+    parser.add_argument('--mask_dir', default='masks', help='Directory for storing optional masks')
     parser.add_argument('--load_last', default='', help='Start with embeddings from directory')
     parser.add_argument('--dlatent_avg', default='', help='Use dlatent from file specified here for truncation instead of dlatent_avg from Gs')
     parser.add_argument('--model_url', default='https://drive.google.com/uc?id=1BV5ND6CnloDz4jAwgTErGuXntxOKF1wt', help='Fetch a StyleGAN model to train on from this URL') # karras2019stylegan-ffhq-1024x1024.pkl
@@ -84,7 +84,7 @@ def main():
     parser.add_argument('--composite_blur', default=8, help='Size of blur filter to smoothly composite the images', type=int)
 
     # Video params
-    parser.add_argument('--video_dir', default='images/videos', help='Directory for storing training videos')
+    parser.add_argument('--video_dir', default='videos', help='Directory for storing training videos')
     parser.add_argument('--output_video', default=False, help='Generate videos of the optimization process', type=bool)
     parser.add_argument('--video_codec', default='MJPG', help='FOURCC-supported video codec name')
     parser.add_argument('--video_frame_rate', default=24, help='Video frames per second', type=int)
@@ -135,13 +135,14 @@ def main():
     for images_batch in tqdm(split_to_batches(ref_images, args.batch_size), total=len(ref_images)//args.batch_size):
         print(f"@@@@ for images_batch - {images_batch}, type:{type(images_batch)}, shape: {len(images_batch)}")
 
-        # path = 'images/generated_images/' + os.path.split(images_batch[0])[-1]
-        # if os.path.exists(path):
-        #     print(f"{path} already exists, skipping...")
-        #     continue
+        path = 'generated_images/' + os.path.split(images_batch[0])[-1]
+        if os.path.exists(path):
+            print(f"{path} already exists, skipping...")
+            continue
 
         names = [os.path.splitext(os.path.basename(x))[0] for x in images_batch]
         if args.output_video:
+            print(f"@@@@ if args.output_video, {path}")
             video_out = {}
             for name in names:
                 video_out[name] = cv2.VideoWriter(os.path.join(args.video_dir, f'{name}.avi'),cv2.VideoWriter_fourcc(*args.video_codec), args.video_frame_rate, (args.video_size,args.video_size))
