@@ -29,7 +29,7 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
 def main():
-    print('@@@@@@@@@@@@@@@@@@@@@@   version 12   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+    print('@@@@@@@@@@@@@@@@@@@@@@   version 13   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
     parser = argparse.ArgumentParser(description='Find latent representation of reference images using perceptual losses', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('src_dir', help='Directory with images for encoding')
     parser.add_argument('generated_images_dir', help='Directory for storing generated images')
@@ -135,10 +135,10 @@ def main():
     for images_batch in tqdm(split_to_batches(ref_images, args.batch_size), total=len(ref_images)//args.batch_size):
         print(f"@@@@ for images_batch - {images_batch}, type:{type(images_batch)}, shape: {len(images_batch)}")
 
-        path = 'images/generated_images/' + os.path.split(images_batch[0])[-1]
-        if os.path.exists(path):
-            print(f"{path} already exists, skipping...")
-            continue
+        # path = 'images/generated_images/' + os.path.split(images_batch[0])[-1]
+        # if os.path.exists(path):
+        #     print(f"{path} already exists, skipping...")
+        #     continue
 
         names = [os.path.splitext(os.path.basename(x))[0] for x in images_batch]
         if args.output_video:
