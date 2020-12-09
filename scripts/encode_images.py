@@ -29,7 +29,7 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
 def main():
-    print('@@@@@@@@@@@@@@@@@@@@@@   version 13   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+    print('@@@@@@@@@@@@@@@@@@@@@@   version 15   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
     parser = argparse.ArgumentParser(description='Find latent representation of reference images using perceptual losses', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('src_dir', help='Directory with images for encoding')
     parser.add_argument('generated_images_dir', help='Directory for storing generated images')
@@ -84,7 +84,7 @@ def main():
     parser.add_argument('--composite_blur', default=8, help='Size of blur filter to smoothly composite the images', type=int)
 
     # Video params
-    parser.add_argument('--video_dir', default='videos', help='Directory for storing training videos')
+    parser.add_argument('--video_dir', default='images/videos', help='Directory for storing training videos')
     parser.add_argument('--output_video', default=False, help='Generate videos of the optimization process', type=bool)
     parser.add_argument('--video_codec', default='MJPG', help='FOURCC-supported video codec name')
     parser.add_argument('--video_frame_rate', default=24, help='Video frames per second', type=int)
@@ -142,7 +142,6 @@ def main():
 
         names = [os.path.splitext(os.path.basename(x))[0] for x in images_batch]
         if args.output_video:
-            print(f"@@@@ if args.output_video, {path}")
             video_out = {}
             for name in names:
                 video_out[name] = cv2.VideoWriter(os.path.join(args.video_dir, f'{name}.avi'),cv2.VideoWriter_fourcc(*args.video_codec), args.video_frame_rate, (args.video_size,args.video_size))
