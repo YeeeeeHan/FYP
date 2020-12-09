@@ -43,9 +43,9 @@ if __name__ == "__main__":
     for img_name in os.listdir(RAW_IMAGES_DIR):
         path = 'aligned_images/' + img_name
         path, _ = os.path.splitext(path)
-        print(f"@@@@ path: {path + '_01.png'}")
-        print(os.path.exists(path + '_01.png'))
-        if os.path.exists(path + '_01.png'):
+        print(f"path: {path + '.png'}")
+        print(f"{os.path.exists(path + '.png')}\n")
+        if os.path.exists(path + '.png'):
             continue
 
         print('Aligning %s ...' % img_name)
@@ -57,11 +57,11 @@ if __name__ == "__main__":
             print('Getting landmarks...')
             for i, face_landmarks in enumerate(landmarks_detector.get_landmarks(raw_img_path), start=1):
                 try:
-                    print('Starting face alignment...')
-                    face_img_name = '%s_%02d.png' % (os.path.splitext(img_name)[0], i)
+                    face_img_name = f"{os.path.splitext(img_name)[0]}.png"
+                    print(f'Starting face alignment for {face_img_name}...')
                     aligned_face_path = os.path.join(ALIGNED_IMAGES_DIR, face_img_name)
                     image_align(raw_img_path, aligned_face_path, face_landmarks, output_size=args.output_size, x_scale=args.x_scale, y_scale=args.y_scale, em_scale=args.em_scale, alpha=args.use_alpha)
-                    print('Wrote result %s' % aligned_face_path)
+                    print(f'Wrote result {aligned_face_path} \n')
                 except:
                     print("Exception in face alignment!")
         except:
