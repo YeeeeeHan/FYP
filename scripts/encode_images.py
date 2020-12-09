@@ -34,8 +34,8 @@ def main():
     parser.add_argument('src_dir', help='Directory with images for encoding')
     parser.add_argument('generated_images_dir', help='Directory for storing generated images')
     parser.add_argument('dlatent_dir', help='Directory for storing dlatent representations')
-    parser.add_argument('--data_dir', default='data', help='Directory for storing optional models')
-    parser.add_argument('--mask_dir', default='masks', help='Directory for storing optional masks')
+    parser.add_argument('--data_dir', default='images/data', help='Directory for storing optional models')
+    parser.add_argument('--mask_dir', default='images/masks', help='Directory for storing optional masks')
     parser.add_argument('--load_last', default='', help='Start with embeddings from directory')
     parser.add_argument('--dlatent_avg', default='', help='Use dlatent from file specified here for truncation instead of dlatent_avg from Gs')
     parser.add_argument('--model_url', default='https://drive.google.com/uc?id=1BV5ND6CnloDz4jAwgTErGuXntxOKF1wt', help='Fetch a StyleGAN model to train on from this URL') # karras2019stylegan-ffhq-1024x1024.pkl
