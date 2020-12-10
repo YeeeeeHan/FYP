@@ -149,35 +149,35 @@ def main():
 
         perceptual_model.set_reference_images(images_batch)
         dlatents = None
-        if (args.load_last != ''): # load previous dlatents for initialization
-            print(f"@@@@ (args.load_last != '')")
-            for name in names:
-                print(f"@@@@ for {name} in names")
-                dl = np.expand_dims(np.load(os.path.join(args.load_last, f'{name}.npy')),axis=0)
-                if (dlatents is None):
-                    dlatents = dl
-                else:
-                    dlatents = np.vstack((dlatents,dl))
-        else:
-            # ff_model is the ResNet model
-            if (ff_model is None):
-                print(f"@@@@ if ff_model: ({ff_model} is None)")
-                if os.path.exists(args.load_resnet):
-                    from keras.applications.resnet50 import preprocess_input
-                    print("Loading ResNet Model:")
-                    ff_model = load_model(args.load_resnet)
-            if (ff_model is None):
-                print(f"@@@@ if (ff_model: {ff_model} is None)")
-                if os.path.exists(args.load_effnet):
-                    import efficientnet
-                    from efficientnet import preprocess_input
-                    print("@@@@ Loading EfficientNet Model:")
-                    ff_model = load_model(args.load_effnet)
-            if (ff_model is not None): # predict initial dlatents with ResNet model
-                if (args.use_preprocess_input):
-                    dlatents = ff_model.predict(preprocess_input(load_images(images_batch,image_size=args.resnet_image_size)))
-                else:
-                    dlatents = ff_model.predict(load_images(images_batch,image_size=args.resnet_image_size))
+        # if (args.load_last != ''): # load previous dlatents for initialization
+        #     print(f"@@@@ (args.load_last != '')")
+        #     for name in names:
+        #         print(f"@@@@ for {name} in names")
+        #         dl = np.expand_dims(np.load(os.path.join(args.load_last, f'{name}.npy')),axis=0)
+        #         if (dlatents is None):
+        #             dlatents = dl
+        #         else:
+        #             dlatents = np.vstack((dlatents,dl))
+        # else:
+        #     # ff_model is the ResNet model
+        if (ff_model is None):
+            print(f"@@@@ if ff_model: ({ff_model} is None)")
+            if os.path.exists(args.load_resnet):
+                from keras.applications.resnet50 import preprocess_input
+                print("Loading ResNet Model:")
+                ff_model = load_model(args.load_resnet)
+        if (ff_model is None):
+            print(f"@@@@ if (ff_model: {ff_model} is None)")
+            if os.path.exists(args.load_effnet):
+                import efficientnet
+                from efficientnet import preprocess_input
+                print("@@@@ Loading EfficientNet Model:")
+                ff_model = load_model(args.load_effnet)
+        if (ff_model is not None): # predict initial dlatents with ResNet model
+            if (args.use_preprocess_input):
+                dlatents = ff_model.predict(preprocess_input(load_images(images_batch,image_size=args.resnet_image_size)))
+            else:
+                dlatents = ff_model.predict(load_images(images_batch,image_size=args.resnet_image_size))
         if dlatents is not None:
             print(f"@@@@ if dlatents: {dlatents.shape} is not None)")
             generator.set_dlatents(dlatents)
@@ -190,42 +190,37 @@ def main():
         if args.early_stopping:
             avg_loss = prev_loss = None
         for loss_dict in pbar:
-            if args.early_stopping: # early stopping feature
-                if prev_loss is not None:
-                    if avg_loss is not None:
-                        avg_loss = 0.5 * avg_loss + (prev_loss - loss_dict["loss"])
-                        if avg_loss < args.early_stopping_threshold: # count while under threshold; else reset
-                            avg_loss_count += 1
-                        else:
-                            avg_loss_count = 0
-                        if avg_loss_count > args.early_stopping_patience: # stop once threshold is reached
-                            print("")
-                            break
-                    else:
-                        avg_loss = prev_loss - loss_dict["loss"]
+            # if args.early_stopping: # early stopping feature
+            #     if prev_loss is not None:
+            #         if avg_loss is not None:
+            #             avg_loss = 0.5 * avg_loss + (prev_loss - loss_dict["loss"])
+            #             if avg_loss < args.early_stopping_threshold: # count while under threshold; else reset
+            #                 avg_loss_count += 1
+            #             else:
+            #                 avg_loss_count = 0
+            #             if avg_loss_count > args.early_stopping_patience: # stop once threshold is reached
+            #                 print("")
+            #                 break
+            #         else:
+            #             avg_loss = prev_loss - loss_dict["loss"]
             pbar.set_description("~!~".join(names) + ": " + "; ".join(["{} {:.4f}".format(k, v) for k, v in loss_dict.items()]))
             if best_loss is None or loss_dict["loss"] < best_loss:
-                print("@@@@ if best_loss is None or loss_dict['loss'] < best_loss")
                 if best_dlatent is None or args.average_best_loss <= 0.00000001:
-                    print("@@@@ if best_dlatent is None or args.average_best_loss <= 0.00000001")
                     best_dlatent = generator.get_dlatents()
                 else:
-                    print("@@@@ else 1")
                     best_dlatent = 0.25 * best_dlatent + 0.75 * generator.get_dlatents()
                 if args.use_best_loss:
-                    print("@@@@ if args.use_best_loss")
                     generator.set_dlatents(best_dlatent)
                 best_loss = loss_dict["loss"]
             if args.output_video and (vid_count % args.video_skip == 0):
-              print("@@@@ if args.output_video and (vid_count % args.video_skip == 0)")
               batch_frames = generator.generate_images()
               for i, name in enumerate(names):
                 video_frame = PIL.Image.fromarray(batch_frames[i], 'RGB').resize((args.video_size,args.video_size),PIL.Image.LANCZOS)
                 video_out[name].write(cv2.cvtColor(np.array(video_frame).astype('uint8'), cv2.COLOR_RGB2BGR))
             generator.stochastic_clip_dlatents()
             prev_loss = loss_dict["loss"]
-        if not args.use_best_loss:
-            best_loss = prev_loss
+        # if not args.use_best_loss:
+        #     best_loss = prev_loss
         print('here2', " ".join(names), " Loss {:.4f}".format(best_loss))
 
         if args.output_video:

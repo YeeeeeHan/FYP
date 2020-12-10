@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     landmarks_detector = LandmarksDetector(landmarks_model_path)
     for img_name in os.listdir(RAW_IMAGES_DIR):
-        path = 'images/aligned_images/' + img_name
+        path = 'aligned_images/' + img_name
         path, _ = os.path.splitext(path)
         print(f"File path: {path + '.png'}")
         print(f"File already exists: {os.path.exists(path + '.png')}")
