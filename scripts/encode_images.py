@@ -29,7 +29,7 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
 def main():
-    print('@@@@@@@@@@@@@@@@@@@@@@   version 10   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+    print('@@@@@@@@@@@@@@@@@@@@@@   version 22   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
     parser = argparse.ArgumentParser(description='Find latent representation of reference images using perceptual losses', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('src_dir', help='Directory with images for encoding')
     parser.add_argument('generated_images_dir', help='Directory for storing generated images')
@@ -205,14 +205,19 @@ def main():
                         avg_loss = prev_loss - loss_dict["loss"]
             pbar.set_description("~!~".join(names) + ": " + "; ".join(["{} {:.4f}".format(k, v) for k, v in loss_dict.items()]))
             if best_loss is None or loss_dict["loss"] < best_loss:
+                print("@@@@ if best_loss is None or loss_dict['loss'] < best_loss")
                 if best_dlatent is None or args.average_best_loss <= 0.00000001:
+                    print("@@@@ if best_dlatent is None or args.average_best_loss <= 0.00000001")
                     best_dlatent = generator.get_dlatents()
                 else:
+                    print("@@@@ else 1")
                     best_dlatent = 0.25 * best_dlatent + 0.75 * generator.get_dlatents()
                 if args.use_best_loss:
+                    print("@@@@ if args.use_best_loss")
                     generator.set_dlatents(best_dlatent)
                 best_loss = loss_dict["loss"]
             if args.output_video and (vid_count % args.video_skip == 0):
+              print("@@@@ if args.output_video and (vid_count % args.video_skip == 0)")
               batch_frames = generator.generate_images()
               for i, name in enumerate(names):
                 video_frame = PIL.Image.fromarray(batch_frames[i], 'RGB').resize((args.video_size,args.video_size),PIL.Image.LANCZOS)
