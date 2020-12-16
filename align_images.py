@@ -57,6 +57,7 @@ if __name__ == "__main__":
             print('Getting landmarks...')
             for i, face_landmarks in enumerate(landmarks_detector.get_landmarks(raw_img_path), start=1):
                 try:
+                    print('test')
                     face_img_name = f"{os.path.splitext(img_name)[0]}.png"
                     print(f'Starting face alignment for {face_img_name}...')
                     aligned_face_path = os.path.join(ALIGNED_IMAGES_DIR, face_img_name)

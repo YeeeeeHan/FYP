@@ -1,1 +1,12 @@
 .idea
+karras2019stylegan-ffhq-1024x1024.pkl
+generated_images
+latent_comparisons
+latent_generations
+latent_representations
+comparison
+aligned_images
+raw_images
+masks
+videos
+data
