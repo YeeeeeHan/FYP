@@ -29,7 +29,7 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
 def main():
-    print('@@@@@@@@@@@@@@@@@@@@@@   version 22   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+    print('@@@@@@@@@@@@@@@@@@@@@@   version 23   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
     parser = argparse.ArgumentParser(description='Find latent representation of reference images using perceptual losses', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('src_dir', help='Directory with images for encoding')
     parser.add_argument('generated_images_dir', help='Directory for storing generated images')
@@ -125,7 +125,6 @@ def main():
 
     perc_model = None
     if (args.use_lpips_loss > 0.00000001):
-        # with dnnlib.util.open_url('https://drive.google.com/uc?id=1N2-m9qszOeVC9Tq77WxsLnuWwOedQiD2', cache_dir=config.cache_dir) as f:
         with open('models/vgg16_zhang_perceptual (1).pkl', 'rb') as f:
             perc_model =  pickle.load(f)
     perceptual_model = PerceptualModel(args, perc_model=perc_model, batch_size=args.batch_size)
@@ -151,30 +150,19 @@ def main():
 
         perceptual_model.set_reference_images(images_batch)
         dlatents = None
-        # if (args.load_last != ''): # load previous dlatents for initialization
-        #     print(f"@@@@ (args.load_last != '')")
-        #     for name in names:
-        #         print(f"@@@@ for {name} in names")
-        #         dl = np.expand_dims(np.load(os.path.join(args.load_last, f'{name}.npy')),axis=0)
-        #         if (dlatents is None):
-        #             dlatents = dl
-        #         else:
-        #             dlatents = np.vstack((dlatents,dl))
-        # else:
-        #     # ff_model is the ResNet model
         if (ff_model is None):
             print(f"@@@@ if ff_model: ({ff_model} is None)")
             if os.path.exists(args.load_resnet):
                 from keras.applications.resnet50 import preprocess_input
                 print("Loading ResNet Model:")
                 ff_model = load_model(args.load_resnet)
-        if (ff_model is None):
-            print(f"@@@@ if (ff_model: {ff_model} is None)")
-            if os.path.exists(args.load_effnet):
-                import efficientnet
-                from efficientnet import preprocess_input
-                print("@@@@ Loading EfficientNet Model:")
-                ff_model = load_model(args.load_effnet)
+        # if (ff_model is None):
+        #     print(f"@@@@ if (ff_model: {ff_model} is None)")
+        #     if os.path.exists(args.load_effnet):
+        #         import efficientnet
+        #         from efficientnet import preprocess_input
+        #         print("@@@@ Loading EfficientNet Model:")
+        #         ff_model = load_model(args.load_effnet)
         if (ff_model is not None): # predict initial dlatents with ResNet model
             if (args.use_preprocess_input):
                 dlatents = ff_model.predict(preprocess_input(load_images(images_batch,image_size=args.resnet_image_size)))
@@ -192,19 +180,6 @@ def main():
         if args.early_stopping:
             avg_loss = prev_loss = None
         for loss_dict in pbar:
-            # if args.early_stopping: # early stopping feature
-            #     if prev_loss is not None:
-            #         if avg_loss is not None:
-            #             avg_loss = 0.5 * avg_loss + (prev_loss - loss_dict["loss"])
-            #             if avg_loss < args.early_stopping_threshold: # count while under threshold; else reset
-            #                 avg_loss_count += 1
-            #             else:
-            #                 avg_loss_count = 0
-            #             if avg_loss_count > args.early_stopping_patience: # stop once threshold is reached
-            #                 print("")
-            #                 break
-            #         else:
-            #             avg_loss = prev_loss - loss_dict["loss"]
             pbar.set_description("~!~".join(names) + ": " + "; ".join(["{} {:.4f}".format(k, v) for k, v in loss_dict.items()]))
             if best_loss is None or loss_dict["loss"] < best_loss:
                 if best_dlatent is None or args.average_best_loss <= 0.00000001:
@@ -221,8 +196,6 @@ def main():
                 video_out[name].write(cv2.cvtColor(np.array(video_frame).astype('uint8'), cv2.COLOR_RGB2BGR))
             generator.stochastic_clip_dlatents()
             prev_loss = loss_dict["loss"]
-        # if not args.use_best_loss:
-        #     best_loss = prev_loss
         print('here2', " ".join(names), " Loss {:.4f}".format(best_loss))
 
         if args.output_video:
@@ -252,7 +225,6 @@ def main():
                 mask = np.expand_dims(mask,axis=-1)
                 img_array = mask*np.array(img_array) + (1.0-mask)*np.array(orig_img)
                 img_array = img_array.astype(np.uint8)
-                #img_array = np.where(mask, np.array(img_array), orig_img)
             img = PIL.Image.fromarray(img_array, 'RGB')
             img.save(os.path.join(args.generated_images_dir, f'{img_name}.png'), 'PNG')
             np.save(os.path.join(args.dlatent_dir, f'{img_name}.npy'), dlatent)

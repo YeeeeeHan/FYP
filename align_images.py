@@ -7,7 +7,7 @@ from ffhq_dataset.face_alignment import image_align
 from ffhq_dataset.landmarks_detector import LandmarksDetector
 import multiprocessing
 
-LANDMARKS_MODEL_URL = 'http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2'
+# LANDMARKS_MODEL_URL = 'http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2'
 
 
 def unpack_bz2(src_path):
@@ -34,8 +34,7 @@ if __name__ == "__main__":
 
     args, other_args = parser.parse_known_args()
 
-    landmarks_model_path = unpack_bz2(get_file('shape_predictor_68_face_landmarks.dat.bz2',
-                                               LANDMARKS_MODEL_URL, cache_subdir='temp'))
+    landmarks_model_path = unpack_bz2('models/shape_predictor_68_face_landmarks.dat.bz2')
     RAW_IMAGES_DIR = args.raw_dir
     ALIGNED_IMAGES_DIR = args.aligned_dir
 
