@@ -44,12 +44,13 @@ class Generator:
                     custom_inputs=[partial(custom_input.eval(), batch_size=batch_size), partial(create_stub, batch_size=batch_size)],
                     structure='fixed')
             else:
+                print('@@@@@@@@@@@@@@@@@@@@@6', type(model))
                 model.components.synthesis.run(self.initial_dlatents,
                     randomize_noise=randomize_noise, minibatch_size=self.batch_size,
                     custom_inputs=[partial(create_variable_for_generator, batch_size=batch_size, tiled_dlatent=False, model_scale=self.model_scale),
                                                     partial(create_stub, batch_size=batch_size)],
                     structure='fixed')
-
+        print('@@@@@@@@@@@@@@@@@@@@@7')
         self.dlatent_avg_def = model.get_var('dlatent_avg')
         self.reset_dlatent_avg()
         self.sess = tf.get_default_session()

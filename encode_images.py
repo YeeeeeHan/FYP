@@ -34,8 +34,8 @@ def main():
     parser.add_argument('src_dir', help='Directory with images for encoding')
     parser.add_argument('generated_images_dir', help='Directory for storing generated images')
     parser.add_argument('dlatent_dir', help='Directory for storing dlatent representations')
-    parser.add_argument('--data_dir', default='data', help='Directory for storing optional models')
-    parser.add_argument('--mask_dir', default='masks', help='Directory for storing optional masks')
+    parser.add_argument('--data_dir', default='models/data', help='Directory for storing optional models')
+    parser.add_argument('--mask_dir', default='images/masks', help='Directory for storing optional masks')
     parser.add_argument('--load_last', default='', help='Start with embeddings from directory')
     parser.add_argument('--dlatent_avg', default='', help='Use dlatent from file specified here for truncation instead of dlatent_avg from Gs')
     parser.add_argument('--model_url', default='https://drive.google.com/uc?id=1BV5ND6CnloDz4jAwgTErGuXntxOKF1wt', help='Fetch a StyleGAN model to train on from this URL') # karras2019stylegan-ffhq-1024x1024.pkl
@@ -53,8 +53,8 @@ def main():
     parser.add_argument('--early_stopping', default=True, help='Stop early once training stabilizes', type=str2bool, nargs='?', const=True)
     parser.add_argument('--early_stopping_threshold', default=0.5, help='Stop after this threshold has been reached', type=float)
     parser.add_argument('--early_stopping_patience', default=10, help='Number of iterations to wait below threshold', type=int)    
-    parser.add_argument('--load_effnet', default='data/finetuned_effnet.h5', help='Model to load for EfficientNet approximation of dlatents')
-    parser.add_argument('--load_resnet', default='data/finetuned_resnet.h5', help='Model to load for ResNet approximation of dlatents')
+    parser.add_argument('--load_effnet', default='models/data/finetuned_effnet.h5', help='Model to load for EfficientNet approximation of dlatents')
+    parser.add_argument('--load_resnet', default='models/data/finetuned_resnet.h5', help='Model to load for ResNet approximation of dlatents')
     parser.add_argument('--use_preprocess_input', default=True, help='Call process_input() first before using feed forward net', type=str2bool, nargs='?', const=True)
     parser.add_argument('--use_best_loss', default=True, help='Output the lowest loss value found as the solution', type=str2bool, nargs='?', const=True)
     parser.add_argument('--average_best_loss', default=0.25, help='Do a running weighted average with the previous best dlatents found', type=float)
@@ -84,7 +84,7 @@ def main():
     parser.add_argument('--composite_blur', default=8, help='Size of blur filter to smoothly composite the images', type=int)
 
     # Video params
-    parser.add_argument('--video_dir', default='videos', help='Directory for storing training videos')
+    parser.add_argument('--video_dir', default='images/videos', help='Directory for storing training videos')
     parser.add_argument('--output_video', default=False, help='Generate videos of the optimization process', type=bool)
     parser.add_argument('--video_codec', default='MJPG', help='FOURCC-supported video codec name')
     parser.add_argument('--video_frame_rate', default=24, help='Video frames per second', type=int)
@@ -114,11 +114,12 @@ def main():
     # Initialize generator and perceptual model
     tflib.init_tf()
 
-    with open('karras2019stylegan-ffhq-1024x1024.pkl', 'rb') as df:
+    with open('models/karras2019stylegan-ffhq-1024x1024.pkl', 'rb') as df:
         print(df)
         generator_network, discriminator_network, Gs_network = pickle.load(df)
 
     generator = Generator(Gs_network, args.batch_size, clipping_threshold=args.clipping_threshold, tiled_dlatent=args.tile_dlatents, model_res=args.model_res, randomize_noise=args.randomize_noise)
+    print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@22')
     if (args.dlatent_avg != ''):
         generator.set_dlatent_avg(np.load(args.dlatent_avg))
 
@@ -135,7 +136,7 @@ def main():
     for images_batch in tqdm(split_to_batches(ref_images, args.batch_size), total=len(ref_images)//args.batch_size):
         print(f"@@@@ for images_batch - {images_batch}, type:{type(images_batch)}, shape: {len(images_batch)}")
 
-        path = 'generated_images/' + os.path.split(images_batch[0])[-1]
+        path = 'images/generated_images/' + os.path.split(images_batch[0])[-1]
         if os.path.exists(path):
             print(f"{path} already exists, skipping...")
             continue
